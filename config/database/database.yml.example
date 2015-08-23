@@ -1,0 +1,7 @@
+:test:
+  :application: 'to-do-app'
+  :data_directory: 'PATH_TO_APPLICATION/to-do-app/config/database/data'
+
+:development:
+  :application: 'to-do-app'
+  :data_directory: 'PATH_TO_APPLICATION/to-do-app/config/database/data'
