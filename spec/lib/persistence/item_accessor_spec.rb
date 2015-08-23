@@ -28,4 +28,27 @@ RSpec.describe Persistence::ItemAccessor do
       expect(incomplete_items.first[:description]).to eq('sit on the Iron Throne')
     end
   end
+
+  describe '.incomplete' do
+    it 'returns all incomplete persisted to-do items for the given user' do
+      user_name = 'Robert Baratheon'
+      @item_accessor.create({
+        user_name: user_name,
+        description: 'sit on the Iron Throne',
+        due_date: Time.now,
+        complete: true
+      })
+      @item_accessor.create({
+        user_name: user_name,
+        description: 'get along with Cersei',
+        due_date: Time.now,
+        complete: false
+      })
+
+      incomplete_items = @item_accessor.incomplete(user_name)
+
+      expect(incomplete_items.count).to eq(1)
+      expect(incomplete_items.first[:description]).to eq('get along with Cersei')
+    end
+  end
 end

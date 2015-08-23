@@ -13,5 +13,9 @@ module Persistence
       @table.where(user_name: user_name)
     end
 
+    def incomplete(user_name)
+      @table.where(user_name: user_name, complete: false)
+    end
+
   end
 end
