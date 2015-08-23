@@ -10,5 +10,6 @@ RSpec.configure do |config|
     Persistence::DatabaseManager.set_configuration(database_configuration)
     @database = Sequel.connect(Persistence::DatabaseManager.url(:test))
     @database.run('DELETE FROM items')
+    @database.run('DELETE FROM users')
   end
 end
