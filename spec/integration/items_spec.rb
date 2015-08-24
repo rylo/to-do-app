@@ -90,8 +90,8 @@ RSpec.describe 'items endpoints', integration: true do
       expect(persisted_item[:due_date].iso8601).to eq(updated_due_date.iso8601)
     end
 
-    it 'updates the item even if the user does not exist' do
-      response = post "users/Nobody/items", {
+    it 'returns a 404 if the given item does not exist' do
+      response = put "items/0000", {
         item: {
           description: 'the description!',
           complete: true,
