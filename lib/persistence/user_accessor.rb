@@ -8,8 +8,8 @@ module Persistence
         table.insert(attributes)
       end
 
-      def find(user_name)
-        table.where(name: user_name).first
+      def find_by_name(name)
+        table.where(name: name).first
       end
 
       private

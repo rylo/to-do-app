@@ -7,7 +7,7 @@ class Application < Sinatra::Base
 
   get '/users/:username/items' do
     name = CGI.unescape(params[:username])
-    user = Persistence::UserAccessor.find(name)
+    user = Persistence::UserAccessor.find_by_name(name)
 
     return [404] if user.nil?
 
@@ -17,7 +17,7 @@ class Application < Sinatra::Base
 
   get '/users/:username/items/incomplete' do
     name = CGI.unescape(params[:username])
-    user = Persistence::UserAccessor.find(name)
+    user = Persistence::UserAccessor.find_by_name(name)
 
     return [404] if user.nil?
 
@@ -27,7 +27,7 @@ class Application < Sinatra::Base
 
   post '/items/:username' do
     name = CGI.unescape(params[:username])
-    user = Persistence::UserAccessor.find(name)
+    user = Persistence::UserAccessor.find_by_name(name)
 
     return [404] if user.nil?
 
