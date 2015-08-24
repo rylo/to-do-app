@@ -12,6 +12,10 @@ module Persistence
         table.insert(attributes)
       end
 
+      def update(id, attributes)
+        table.update(attributes.merge({'id' => id}))
+      end
+
       def all(user_name)
         table.where(user_name: user_name)
       end

@@ -12,4 +12,12 @@ module Requestable
       body: JSON.generate(body)
     )
   end
+
+  def put(path, body)
+    Excon.put(
+      "http://localhost:4567/#{CGI.escape(path)}",
+      headers: { 'Content-Type' => 'application/json' },
+      body: JSON.generate(body)
+    )
+  end
 end
