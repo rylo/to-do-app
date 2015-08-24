@@ -1,4 +1,5 @@
 require 'presenters/item_presenter'
+require 'presenters/user_presenter'
 require 'sequel/model'
 require 'sinatra/base'
 require 'json'
@@ -40,15 +41,14 @@ class Application < Sinatra::Base
     [200, present_user(user)]
   end
 
-  post '/items/:username' do
-    name = CGI.unescape(params[:username])
-    user = Persistence::UserAccessor.find_by_name(name)
+  post '/items' do
+    attributes = JSON.parse(@request.body.read)['item']
+    user = Persistence::UserAccessor.find_by_name(attributes['userName'])
 
     return [404] if user.nil?
 
-    attributes = JSON.parse(@request.body.read)['item']
-    attributes.merge!({'user_name' => user[:name]})
-    item_id = Persistence::ItemAccessor.create(attributes)
+    serialized_attributes = serialize_item_attributes(attributes)
+    item_id = Persistence::ItemAccessor.create(serialized_attributes)
 
     item = Persistence::ItemAccessor.find(item_id)
     [200, present_item(item)]
@@ -61,7 +61,8 @@ class Application < Sinatra::Base
     return [404] if item.nil?
 
     attributes = JSON.parse(@request.body.read)['item']
-    Persistence::ItemAccessor.update(item_id, attributes)
+    serialized_attributes = serialize_item_attributes(attributes)
+    Persistence::ItemAccessor.update(item_id, serialized_attributes)
 
     item = Persistence::ItemAccessor.find(item_id)
     [200, present_item(item)]
@@ -78,6 +79,15 @@ class Application < Sinatra::Base
 
     item = Persistence::ItemAccessor.find(item_id)
     [200, present_item(item)]
+  end
+
+  def serialize_item_attributes(attributes)
+    {
+      user_name: attributes['userName'],
+      description: attributes['description'],
+      due_date: attributes['dueDate'],
+      complete: attributes['complete']
+    }
   end
 
   def present_user(user)

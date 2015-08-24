@@ -19,11 +19,12 @@ RSpec.describe 'items endpoints', integration: true do
       name = 'Admiral Adama'
       Persistence::UserAccessor.create(name: name)
       due_date = Time.now
-      response = post "items/#{name}", {
+      response = post "items", {
         item: {
+          userName: name,
           description: 'the description!',
           complete: true,
-          due_date: due_date
+          dueDate: due_date
         }
       }
 
@@ -43,11 +44,12 @@ RSpec.describe 'items endpoints', integration: true do
     end
 
     it 'returns a 404 if a user with the given username does not exist' do
-      response = post "users/Nobody/items", {
+      response = post "items", {
         item: {
+          userName: 'Nobody',
           description: 'the description!',
           complete: true,
-          due_date: Time.now
+          dueDate: Time.now
         }
       }
 
@@ -68,10 +70,10 @@ RSpec.describe 'items endpoints', integration: true do
       updated_due_date = Time.now
       response = put "items/#{item_id}", {
         item: {
-          user_name: user_name,
+          userName: user_name,
           description: 'the description!',
           complete: true,
-          due_date: updated_due_date
+          dueDate: updated_due_date
         }
       }
 
@@ -93,9 +95,10 @@ RSpec.describe 'items endpoints', integration: true do
     it 'returns a 404 if the given item does not exist' do
       response = put "items/0000", {
         item: {
+          userName: 'Darth Sidious',
           description: 'the description!',
           complete: true,
-          due_date: Time.now
+          dueDate: Time.now
         }
       }
 
@@ -114,6 +117,7 @@ RSpec.describe 'items endpoints', integration: true do
         complete: false,
         due_date: due_date
       })
+
       response = put "items/#{item_id}/complete", {}
 
       expect(response.status).to eq(200)
