@@ -25,6 +25,21 @@ class Application < Sinatra::Base
     [200, present_items(items)]
   end
 
+  post '/users' do
+    attributes = JSON.parse(@request.body.read)['user']
+
+    if !(attributes.keys == ['name'])
+      error_response = JSON.generate({
+        error: 'name required'
+      })
+      return [400, error_response]
+    end
+
+    user_id = Persistence::UserAccessor.create(attributes)
+    user = Persistence::UserAccessor.find(user_id)
+    [200, present_user(user)]
+  end
+
   post '/items/:username' do
     name = CGI.unescape(params[:username])
     user = Persistence::UserAccessor.find_by_name(name)
@@ -50,6 +65,11 @@ class Application < Sinatra::Base
 
     item = Persistence::ItemAccessor.find(item_id)
     [200, present_item(item)]
+  end
+
+  def present_user(user)
+    presented_user = Presenters::UserPresenter.present(user)
+    JSON.generate({user: presented_user})
   end
 
   def present_items(items)

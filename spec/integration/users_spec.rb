@@ -98,4 +98,34 @@ RSpec.describe 'users endpoints', integration: true do
       expect(response.status).to eq(404)
     end
   end
+
+  describe 'POST /users' do
+    it 'returns a 200 with the presented, persisted item' do
+      response = post "users", {
+        user: {
+          name: 'Admiral Ackbar'
+        }
+      }
+
+      expect(response.status).to eq(200)
+      returned_user= JSON.parse(response.body)['user']
+      expect(returned_user['name']).to eq('Admiral Ackbar')
+      user_id = returned_user['id']
+
+      persisted_user = Persistence::UserAccessor.find(user_id)
+      expect(persisted_user[:name]).to eq('Admiral Ackbar')
+    end
+
+    it 'returns a 400 if a user data is not formatted correctly' do
+      response = post "users", {
+        user: {
+          not_the_name_field: 'foo'
+        }
+      }
+
+      expect(response.status).to eq(400)
+      response_body = JSON.parse(response.body)
+      expect(response_body['error']).to eq('name required')
+    end
+  end
 end
