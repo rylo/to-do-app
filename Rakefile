@@ -17,3 +17,16 @@ namespace :db do
     puts `#{command}`
   end
 end
+
+namespace :server do
+  desc 'Start the application'
+  task :start, [:environment] do |task, args|
+    require 'application'
+    environment = args[:environment].to_sym
+
+    puts "Starting application in '#{environment}' environment..."
+
+    Application.initialize!
+    Application.run!
+  end
+end
