@@ -4,6 +4,10 @@ module Persistence
   class ItemAccessor < Sequel::Model
     class << self
 
+      def find(item_id)
+        table.where(id: item_id).limit(1).first
+      end
+
       def create(attributes)
         table.insert(attributes)
       end
