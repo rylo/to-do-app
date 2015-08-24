@@ -98,45 +98,4 @@ RSpec.describe 'users endpoints', integration: true do
       expect(response.status).to eq(404)
     end
   end
-
-  describe 'POST items' do
-    it 'returns a 200 with the presented, persisted item' do
-      name = 'Admiral Adama'
-      Persistence::UserAccessor.create(name: name)
-      due_date = Time.now
-      response = post "items/#{name}", {
-        item: {
-          description: 'the description!',
-          complete: true,
-          due_date: due_date
-        }
-      }
-
-      expect(response.status).to eq(200)
-      returned_item = JSON.parse(response.body)['item']
-      expect(returned_item['userName']).to eq(name)
-      expect(returned_item['description']).to eq('the description!')
-      expect(returned_item['complete']).to eq(true)
-      expect(returned_item['dueDate']).to eq(due_date.iso8601)
-
-      persisted_items = Persistence::ItemAccessor.all(name).all
-      expect(persisted_items.size).to eq(1)
-      persisted_item = persisted_items.first
-      expect(persisted_item[:description]).to eq('the description!')
-      expect(persisted_item[:complete]).to eq(true)
-      expect(persisted_item[:due_date].iso8601).to eq(due_date.iso8601)
-    end
-
-    it 'returns a 404 if a user with the given username does not exist' do
-      response = post "items/Nobody", {
-        item: {
-          description: 'the description!',
-          complete: true,
-          due_date: Time.now
-        }
-      }
-
-      expect(response.status).to eq(404)
-    end
-  end
 end
