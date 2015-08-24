@@ -67,6 +67,19 @@ class Application < Sinatra::Base
     [200, present_item(item)]
   end
 
+  put '/items/:id/complete' do
+    item_id = params[:id]
+    item = Persistence::ItemAccessor.find(item_id)
+
+    return [404] if item.nil?
+
+    attributes = JSON.parse(@request.body.read)['item']
+    Persistence::ItemAccessor.update(item_id, {complete: true})
+
+    item = Persistence::ItemAccessor.find(item_id)
+    [200, present_item(item)]
+  end
+
   def present_user(user)
     presented_user = Presenters::UserPresenter.present(user)
     JSON.generate({user: presented_user})

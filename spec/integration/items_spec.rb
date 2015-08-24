@@ -102,4 +102,39 @@ RSpec.describe 'items endpoints', integration: true do
       expect(response.status).to eq(404)
     end
   end
+
+  describe 'PUT /items/:id/complete' do
+    it 'sets the complete field for the given item to true' do
+      user_name = 'Admiral Adama'
+      Persistence::UserAccessor.create(name: user_name)
+      due_date = Time.now
+      item_id = Persistence::ItemAccessor.create({
+        user_name: user_name,
+        description: 'find a new home',
+        complete: false,
+        due_date: due_date
+      })
+      response = put "items/#{item_id}/complete", {}
+
+      expect(response.status).to eq(200)
+      returned_item = JSON.parse(response.body)['item']
+      expect(returned_item['userName']).to eq(user_name)
+      expect(returned_item['description']).to eq('find a new home')
+      expect(returned_item['complete']).to eq(true)
+      expect(returned_item['dueDate']).to eq(due_date.iso8601)
+
+      persisted_items = Persistence::ItemAccessor.all(user_name).all
+      expect(persisted_items.size).to eq(1)
+      persisted_item = persisted_items.first
+      expect(persisted_item[:description]).to eq('find a new home')
+      expect(persisted_item[:complete]).to eq(true)
+      expect(persisted_item[:due_date].iso8601).to eq(due_date.iso8601)
+    end
+
+    it 'returns a 404 if an item with the given id does not exist' do
+      response = put "items/000/complete", {}
+
+      expect(response.status).to eq(404)
+    end
+  end
 end
