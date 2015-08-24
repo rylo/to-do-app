@@ -4,6 +4,8 @@ module Presenters
 
       def present(item)
         {
+          id: item[:id],
+          userName: item[:user_name],
           description: item[:description],
           complete: item[:complete],
           dueDate: item[:due_date].iso8601
