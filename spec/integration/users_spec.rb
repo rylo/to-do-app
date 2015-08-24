@@ -58,7 +58,7 @@ RSpec.describe 'users endpoints', integration: true do
     end
   end
 
-  describe 'GET /users/username/incomplete' do
+  describe 'GET /users/:username/incomplete' do
     it 'returns a 200 with the persisted incomplete items for a given user' do
       name = 'Admiral Adama'
       Persistence::UserAccessor.create(name: name)
