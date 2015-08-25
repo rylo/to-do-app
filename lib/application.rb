@@ -33,16 +33,16 @@ class Application < Sinatra::Base
   end
 
   post '/users' do
-    attributes = JSON.parse(@request.body.read)['user']
+    attributes = deserialize(@request.body.read)['user']
 
     status, body = Domain::Users.create(attributes)
     [status, serialize(body)]
   end
 
   post '/items' do
-    attributes = JSON.parse(@request.body.read)['item']
+    attributes = deserialize(@request.body.read)['item']
     validation_errors = ItemValidator.validate(attributes)
-    return [400, JSON.generate({errors: validation_errors})] if validation_errors.any?
+    return [400, serialize({errors: validation_errors})] if validation_errors.any?
 
     user = Persistence::UserAccessor.find_by_name(attributes['userName'])
     return [404] if user.nil?
@@ -60,7 +60,7 @@ class Application < Sinatra::Base
 
     return [404] if item.nil?
 
-    attributes = JSON.parse(@request.body.read)['item']
+    attributes = deserialize(@request.body.read)['item']
     serialized_attributes = serialize_item_attributes(attributes)
     Persistence::ItemAccessor.update(item_id, serialized_attributes)
 
@@ -74,15 +74,19 @@ class Application < Sinatra::Base
 
     return [404] if item.nil?
 
-    attributes = JSON.parse(@request.body.read)['item']
+    attributes = deserialize(@request.body.read)['item']
     Persistence::ItemAccessor.update(item_id, {complete: true})
 
     item = Persistence::ItemAccessor.find(item_id)
     [200, present_item(item)]
   end
 
-  def serialize(request_body)
-    JSON.generate(request_body)
+  def deserialize(request_body)
+    JSON.parse(request_body)
+  end
+
+  def serialize(response_body)
+    JSON.generate(response_body)
   end
 
   def serialize_item_attributes(attributes)
@@ -99,12 +103,12 @@ class Application < Sinatra::Base
       Presenters::ItemPresenter.present(item)
     end
 
-    JSON.generate({items: presented_items})
+    serialize({items: presented_items})
   end
 
   def present_item(item)
     presented_item = Presenters::ItemPresenter.present(item)
-    JSON.generate({item: presented_item})
+    serialize({item: presented_item})
   end
 
 end
