@@ -13,7 +13,7 @@ module Persistence
       end
 
       def update(id, attributes)
-        table.update(attributes.merge({'id' => id}))
+        table.where('id = ?', id).update(attributes)
       end
 
       def all(user_name)

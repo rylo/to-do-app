@@ -69,7 +69,6 @@ class Application < Sinatra::Base
 
     return [404] if item.nil?
 
-    attributes = deserialize(@request.body.read)['item']
     Persistence::ItemAccessor.update(item_id, {complete: true})
 
     item = Persistence::ItemAccessor.find(item_id)
