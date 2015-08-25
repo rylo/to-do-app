@@ -3,7 +3,7 @@ require 'domain/items'
 
 RSpec.describe Domain::Items do
   describe '.fetch_all_for_user' do
-    it 'fetches all persited to-do items for a given user' do
+    it 'fetches all persisted to-do items for a given user' do
       user_name = 'Gandalf the Grey'
       Persistence::UserAccessor.create(name: user_name)
       due_date = Time.now
@@ -50,6 +50,47 @@ RSpec.describe Domain::Items do
       })
 
       status, response = Domain::Items.fetch_all_for_user(user_name)
+
+      expect(status).to eq(404)
+      expect(response).to eq({})
+    end
+  end
+
+  describe '.fetch_incomplete_for_user' do
+    it 'fetches all incomplete persisted to-do items for a given user' do
+      user_name = 'Admiral Adama'
+      Persistence::UserAccessor.create(name: user_name)
+      Persistence::ItemAccessor.create({
+        user_name: user_name,
+        description: 'become admiral',
+        complete: true,
+        due_date: Time.now
+      })
+      Persistence::ItemAccessor.create({
+        user_name: user_name,
+        description: 'find a new home',
+        complete: false,
+        due_date: Time.now
+      })
+
+      status, response = Domain::Items.fetch_incomplete_for_user(user_name)
+
+      expect(status).to eq(200)
+      items = response[:items]
+      expect(items.size).to eq(1)
+      expect(items.first[:description]).to eq('find a new home')
+    end
+
+    it 'returns a 404 if a user with the given username does not exist' do
+      user_name = 'Admiral Adama'
+      Persistence::ItemAccessor.create({
+        user_name: user_name,
+        description: 'find a new home',
+        complete: false,
+        due_date: Time.now
+      })
+
+      status, response = Domain::Items.fetch_incomplete_for_user(user_name)
 
       expect(status).to eq(404)
       expect(response).to eq({})
