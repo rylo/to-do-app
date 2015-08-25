@@ -55,6 +55,17 @@ RSpec.describe 'items endpoints', integration: true do
 
       expect(response.status).to eq(404)
     end
+
+    it 'returns a 400 if the item is missing required fields' do
+      name = 'Admiral Adama'
+      Persistence::UserAccessor.create(name: name)
+
+      response = post "items", {item: {}}
+
+      expect(response.status).to eq(400)
+      errors = JSON.parse(response.body)['errors']
+      expect(errors).to match_array(['userName required', 'description required', 'complete required', 'dueDate required'])
+    end
   end
 
   describe 'PUT /items/:id' do

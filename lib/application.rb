@@ -1,5 +1,6 @@
 require 'presenters/item_presenter'
 require 'presenters/user_presenter'
+require 'validators/item_validator'
 require 'sequel/model'
 require 'sinatra/base'
 require 'json'
@@ -43,8 +44,10 @@ class Application < Sinatra::Base
 
   post '/items' do
     attributes = JSON.parse(@request.body.read)['item']
-    user = Persistence::UserAccessor.find_by_name(attributes['userName'])
+    validation_errors = ItemValidator.validate(attributes)
+    return [400, JSON.generate({errors: validation_errors})] if validation_errors.any?
 
+    user = Persistence::UserAccessor.find_by_name(attributes['userName'])
     return [404] if user.nil?
 
     serialized_attributes = serialize_item_attributes(attributes)
