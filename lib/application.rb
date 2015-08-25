@@ -1,8 +1,9 @@
-require 'presenters/item_presenter'
-require 'presenters/user_presenter'
-require 'validators/item_validator'
-require 'sequel/model'
+require 'environment'
 require 'sinatra/base'
+require 'persistence/item_accessor'
+require 'presenters/item_presenter'
+require 'validators/item_validator'
+require 'domain/users'
 require 'json'
 
 class Application < Sinatra::Base
@@ -34,16 +35,8 @@ class Application < Sinatra::Base
   post '/users' do
     attributes = JSON.parse(@request.body.read)['user']
 
-    if !(attributes.keys == ['name'])
-      error_response = JSON.generate({
-        error: 'name required'
-      })
-      return [400, error_response]
-    end
-
-    user_id = Persistence::UserAccessor.create(attributes)
-    user = Persistence::UserAccessor.find(user_id)
-    [200, present_user(user)]
+    status, body = Domain::Users.create(attributes)
+    [status, serialize(body)]
   end
 
   post '/items' do
@@ -88,6 +81,10 @@ class Application < Sinatra::Base
     [200, present_item(item)]
   end
 
+  def serialize(request_body)
+    JSON.generate(request_body)
+  end
+
   def serialize_item_attributes(attributes)
     {
       user_name: attributes['userName'],
@@ -95,11 +92,6 @@ class Application < Sinatra::Base
       due_date: attributes['dueDate'],
       complete: attributes['complete']
     }
-  end
-
-  def present_user(user)
-    presented_user = Presenters::UserPresenter.present(user)
-    JSON.generate({user: presented_user})
   end
 
   def present_items(items)
@@ -113,24 +105,6 @@ class Application < Sinatra::Base
   def present_item(item)
     presented_item = Presenters::ItemPresenter.present(item)
     JSON.generate({item: presented_item})
-  end
-
-  class << self
-    def initialize!
-      initialize_database_connection!
-
-      require 'persistence/user_accessor'
-      require 'persistence/item_accessor'
-    end
-
-    private
-
-    def initialize_database_connection!
-      database_configuration = Configuration.database_configuration
-      Persistence::DatabaseManager.set_configuration(database_configuration)
-      database = Sequel.connect(Persistence::DatabaseManager.url(:test))
-      Sequel::Model.db = database
-    end
   end
 
 end

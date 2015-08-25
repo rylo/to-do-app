@@ -7,7 +7,6 @@ RSpec.describe 'items endpoints', integration: true do
 
   before :context do
     Thread.new do
-      Application.initialize!
       Application.run!
     end
 

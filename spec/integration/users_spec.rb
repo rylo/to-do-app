@@ -7,7 +7,6 @@ RSpec.describe 'users endpoints', integration: true do
 
   before :context do
     Thread.new do
-      Application.initialize!
       Application.run!
     end
 
@@ -125,7 +124,7 @@ RSpec.describe 'users endpoints', integration: true do
 
       expect(response.status).to eq(400)
       response_body = JSON.parse(response.body)
-      expect(response_body['error']).to eq('name required')
+      expect(response_body['errors']).to match_array(['name required'])
     end
   end
 end

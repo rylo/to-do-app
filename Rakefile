@@ -26,7 +26,6 @@ namespace :server do
 
     puts "Starting application in '#{environment}' environment..."
 
-    Application.initialize!
     Application.run!
   end
 end
