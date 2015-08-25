@@ -7,6 +7,10 @@ require 'json'
 
 class Application < Sinatra::Base
 
+  before '*' do
+    content_type 'application/json'
+  end
+
   get '/users/:username/items' do
     name = CGI.unescape(params[:username])
     user = Persistence::UserAccessor.find_by_name(name)
