@@ -22,12 +22,9 @@ class Application < Sinatra::Base
 
   get '/users/:username/items/incomplete' do
     name = CGI.unescape(params[:username])
-    user = Persistence::UserAccessor.find_by_name(name)
 
-    return [404] if user.nil?
-
-    items = Persistence::ItemAccessor.incomplete(name)
-    [200, present_items(items)]
+    status, body = Domain::Items.fetch_incomplete_for_user(name)
+    [status, serialize(body)]
   end
 
   post '/users' do
