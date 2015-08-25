@@ -100,7 +100,7 @@ RSpec.describe 'users endpoints', integration: true do
   end
 
   describe 'POST /users' do
-    it 'returns a 200 with the presented, persisted item' do
+    it 'creates a user and returns a 200 with the presented, persisted user' do
       response = post "users", {
         user: {
           name: 'Admiral Ackbar'
@@ -108,7 +108,7 @@ RSpec.describe 'users endpoints', integration: true do
       }
 
       expect(response.status).to eq(200)
-      returned_user= JSON.parse(response.body)['user']
+      returned_user = JSON.parse(response.body)['user']
       expect(returned_user['name']).to eq('Admiral Ackbar')
       user_id = returned_user['id']
 
