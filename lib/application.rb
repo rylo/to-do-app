@@ -45,7 +45,7 @@ class Application < Sinatra::Base
     user = Persistence::UserAccessor.find_by_name(attributes['userName'])
     return [404] if user.nil?
 
-    serialized_attributes = serialize_item_attributes(attributes)
+    serialized_attributes = deserialize_item_attributes(attributes)
     item_id = Persistence::ItemAccessor.create(serialized_attributes)
 
     item = Persistence::ItemAccessor.find(item_id)
@@ -59,7 +59,7 @@ class Application < Sinatra::Base
     return [404] if item.nil?
 
     attributes = deserialize(@request.body.read)['item']
-    serialized_attributes = serialize_item_attributes(attributes)
+    serialized_attributes = deserialize_item_attributes(attributes)
     Persistence::ItemAccessor.update(item_id, serialized_attributes)
 
     item = Persistence::ItemAccessor.find(item_id)
@@ -87,7 +87,7 @@ class Application < Sinatra::Base
     JSON.generate(response_body)
   end
 
-  def serialize_item_attributes(attributes)
+  def deserialize_item_attributes(attributes)
     {
       user_name: attributes['userName'],
       description: attributes['description'],
