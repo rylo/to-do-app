@@ -92,14 +92,6 @@ class Application < Sinatra::Base
     }
   end
 
-  def present_items(items)
-    presented_items = items.map do |item|
-      Presenters::ItemPresenter.present(item)
-    end
-
-    serialize({items: presented_items})
-  end
-
   def present_item(item)
     presented_item = Presenters::ItemPresenter.present(item)
     serialize({item: presented_item})
