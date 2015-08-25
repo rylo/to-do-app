@@ -3,6 +3,7 @@ require 'sinatra/base'
 require 'persistence/item_accessor'
 require 'presenters/item_presenter'
 require 'validators/item_validator'
+require 'domain/items'
 require 'domain/users'
 require 'json'
 
@@ -14,12 +15,9 @@ class Application < Sinatra::Base
 
   get '/users/:username/items' do
     name = CGI.unescape(params[:username])
-    user = Persistence::UserAccessor.find_by_name(name)
 
-    return [404] if user.nil?
-
-    items = Persistence::ItemAccessor.all(name)
-    [200, present_items(items)]
+    status, body = Domain::Items.fetch_all_for_user(name)
+    [status, serialize(body)]
   end
 
   get '/users/:username/items/incomplete' do
